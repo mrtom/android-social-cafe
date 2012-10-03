@@ -16,12 +16,15 @@
 
 package com.facebook.samples.socialcafe;
 
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 public class SplashActivity extends Activity {
 
@@ -36,12 +39,27 @@ public class SplashActivity extends Activity {
 	        @Override
 	        public void run() {
 	            finish();
-	            //Go to login screen if no session exists else go to the menu activity
+              // Check for session. If none exists go to Login activity
+              // Otherwise, check for deep linking data. Go to the appropriate
+              // order if possible, otherwise go to the menu
 	            
 	            if (((SocialCafeApplication)getApplication()).facebook.isSessionValid()) {
-	            	startActivity(new Intent().setClass(SplashActivity.this, MenuActivity.class));
+	            	
+    					Uri target = getIntent().getData();
+	    				if (target != null) {
+	    					Intent orderIntent = new Intent(SplashActivity.this, OrderDrinkActivity.class);
+	    					HashMap<String, Drink> drinksMap = ((SocialCafeApplication)SplashActivity.this.getApplication()).drinks;
+	    					
+	    					Drink deepLinkToDrink = drinksMap.get(target.toString());
+	    					if (deepLinkToDrink != null) {
+	        					orderIntent.putExtra("DRINK_URL", target.toString());
+	        					startActivity(orderIntent);
+	    					}
+	    				} else {
+	    					startActivity(new Intent().setClass(SplashActivity.this, MenuActivity.class));
+	    				}
 	            } else {
-	            	startActivity(new Intent().setClass(SplashActivity.this, LoginActivity.class));
+	            		startActivity(new Intent().setClass(SplashActivity.this, LoginActivity.class));
 	            }
 	        }
         };

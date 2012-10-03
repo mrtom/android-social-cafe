@@ -18,7 +18,8 @@ package com.facebook.samples.socialcafe;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import android.app.Application;
@@ -40,7 +41,7 @@ public class SocialCafeApplication extends Application {
 	public Facebook facebook;
 	public AsyncFacebookRunner asyncRunner;
 	
-	public ArrayList<Drink> drinks;
+	public HashMap<String, Drink> drinks;
 	public String userName;
 	public Bitmap userPic;
 	
@@ -56,10 +57,15 @@ public class SocialCafeApplication extends Application {
         /* Create a dummy drinks list.
          * Using dummy data for drink info.
          */
-        drinks = new ArrayList<Drink>();
-        drinks.add(new Drink("Cafe Latte", "2 others enjoyed this", R.drawable.latte, "Small", "http://social-cafe.herokuapp.com/latte.php"));
-        drinks.add(new Drink("Iced Mocha", "6 others enjoyed this", R.drawable.icedmocha, "Large", "http://social-cafe.herokuapp.com/icedmocha.php"));
-        drinks.add(new Drink("Earl Grey Tea", "3 others enjoyed this", R.drawable.earlgrey, "Medium", "http://social-cafe.herokuapp.com/earlgrey.php"));
+        drinks = new LinkedHashMap<String, Drink>();
+        
+        String latte = "http://social-cafe.herokuapp.com/latte.php";
+        String icedmocha = "http://social-cafe.herokuapp.com/icedmocha.php";
+        String earlgrey = "http://social-cafe.herokuapp.com/earlgrey.php";
+        
+        drinks.put(latte, new Drink("Cafe Latte", "2 others enjoyed this", R.drawable.latte, "Small", latte));
+        drinks.put(icedmocha, new Drink("Iced Mocha", "6 others enjoyed this", R.drawable.icedmocha, "Large", icedmocha));
+        drinks.put(earlgrey, new Drink("Earl Grey Tea", "3 others enjoyed this", R.drawable.earlgrey, "Medium", earlgrey));
         
         //load user data (name and bitmap)
         loadUserData();

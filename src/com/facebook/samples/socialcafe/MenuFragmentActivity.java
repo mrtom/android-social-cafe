@@ -17,6 +17,7 @@
 package com.facebook.samples.socialcafe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,8 +85,9 @@ public class MenuFragmentActivity extends Fragment {
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
+				Drink drink = (Drink)arg0.getItemAtPosition(position);
 				Intent orderIntent = new Intent(getActivity(), OrderDrinkActivity.class);
-				orderIntent.putExtra("DRINK_INDEX", position);
+				orderIntent.putExtra("DRINK_URL", drink.getURL());
 				startActivity(orderIntent);
 			}
 			
@@ -202,10 +204,12 @@ public class MenuFragmentActivity extends Fragment {
      */
 	public class DrinkListAdapter extends BaseAdapter {
 		
-		ArrayList<Drink> drinks;
+		HashMap<String, Drink> drinks;
+		ArrayList<Drink> drinksAsArray;
 		
 		public DrinkListAdapter() {
 			drinks = ((SocialCafeApplication)getActivity().getApplication()).drinks;
+			drinksAsArray = new ArrayList<Drink>(drinks.values());
 		}
 		
 		@Override
@@ -215,7 +219,7 @@ public class MenuFragmentActivity extends Fragment {
 		
 		@Override
 		public Object getItem(int position) {
-			return null;
+			return drinksAsArray.get(position);
 		}
 
 		@Override
@@ -228,14 +232,18 @@ public class MenuFragmentActivity extends Fragment {
 			if(convertView == null) {
 				convertView = getActivity().getLayoutInflater().inflate(R.layout.drink_item, null);
 			}
-			ImageView image = (ImageView)convertView.findViewById(R.id.drink_image);
-			image.setImageResource(drinks.get(position).getImageID());
 			
-			TextView name = (TextView) convertView.findViewById(R.id.drink_title);
-			name.setText(drinks.get(position).getTitle());
-			
-			TextView info = (TextView) convertView.findViewById(R.id.drink_other_info);
-			info.setText(drinks.get(position).getInfo());
+			Drink drink = (Drink)this.getItem(position);
+			if (drink != null) {
+				ImageView image = (ImageView)convertView.findViewById(R.id.drink_image);
+				image.setImageResource(drink.getImageID());
+				
+				TextView name = (TextView) convertView.findViewById(R.id.drink_title);
+				name.setText(drink.getTitle());
+				
+				TextView info = (TextView) convertView.findViewById(R.id.drink_other_info);
+				info.setText(drink.getInfo());
+			}
 			
 			return convertView;
 		}	

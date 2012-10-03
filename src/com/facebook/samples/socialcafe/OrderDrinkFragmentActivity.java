@@ -16,7 +16,7 @@
 
 package com.facebook.samples.socialcafe;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -34,11 +34,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class OrderDrinkFragmentActivity extends Fragment {
-	private int index;
+	private String url;
+	private Drink drink;
 	private static final int ORDER_STATE = 1;
 	ProgressDialog dialog;
 	
-	ArrayList<Drink> drinks;
+	HashMap<String, Drink> drinks;
 
 	@TargetApi(11)
 	@Override
@@ -47,7 +48,9 @@ public class OrderDrinkFragmentActivity extends Fragment {
 		setHasOptionsMenu(true);
 		setRetainInstance(true);
 		drinks = ((SocialCafeApplication)getActivity().getApplication()).drinks;
-		index = getActivity().getIntent().getIntExtra("DRINK_INDEX", -1);
+		url = getActivity().getIntent().getStringExtra("DRINK_URL");
+		
+		drink = drinks.get(url);
 		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -61,21 +64,21 @@ public class OrderDrinkFragmentActivity extends Fragment {
 		
 		TextView userName = (TextView)v.findViewById(R.id.story_order_message);
 		userName.setText(getString(R.string.og_message, 
-				((SocialCafeApplication)getActivity().getApplication()).userName, drinks.get(index).getTitle()));
+				((SocialCafeApplication)getActivity().getApplication()).userName, drink.getTitle()));
 		
 		ImageView userPic = (ImageView)v.findViewById(R.id.user_order_pic);
 		userPic.setImageBitmap(((SocialCafeApplication)getActivity().getApplication()).userPic);
 		
 		TextView drinkTitle = (TextView)v.findViewById(R.id.drink_order_title);
-		drinkTitle.setText(drinks.get(index).getTitle());
+		drinkTitle.setText(drink.getTitle());
 
 		TextView drinkInfo = (TextView)v.findViewById(R.id.drink_order_info);
-		drinkInfo.setText(drinks.get(index).getInfo());
+		drinkInfo.setText(drink.getInfo());
 		
 		final TextView userMessage = (TextView)v.findViewById(R.id.user_message);
 		
 		ImageView drinkImage = (ImageView)v.findViewById(R.id.drink_order_image);
-		drinkImage.setImageResource(drinks.get(index).getImageID());
+		drinkImage.setImageResource(drink.getImageID());
 		
 		ImageButton orderButton = (ImageButton)v.findViewById(R.id.order_drink_button);
 		orderButton.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +87,7 @@ public class OrderDrinkFragmentActivity extends Fragment {
 			public void onClick(View v) {
 				dialog = ProgressDialog.show(getActivity(), "", getString(R.string.please_wait), true, true);
 				Bundle params = new Bundle();
-		   		params.putString("beverage", drinks.get(index).getURL());
+		   		params.putString("beverage", drink.getURL());
 		   		if(userMessage.getText() != null && userMessage.getText().length() > 0) {
 		   			params.putString("message", userMessage.getText().toString());
 		   		}
@@ -158,7 +161,7 @@ public class OrderDrinkFragmentActivity extends Fragment {
         public void onComplete(final String response, final Object state) {
         	dialog.dismiss();
         	Intent confirmIntent = new Intent (getActivity(), ConfirmationActivity.class);
-        	confirmIntent.putExtra("DRINK_INDEX", index);
+        	confirmIntent.putExtra("DRINK_URL", drink.getURL());
         	startActivity(confirmIntent);
         }
     }

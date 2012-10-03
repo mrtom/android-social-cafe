@@ -16,7 +16,7 @@
 
 package com.facebook.samples.socialcafe;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -35,11 +35,11 @@ import android.widget.TextView;
 
 public class ConfirmationFragmentActivity extends Fragment {
 
-	private int index;
+	private String url;
 	private static final int ENJOY_STATE=1;
 	protected Handler handler;
 	
-	ArrayList<Drink> drinks;
+	HashMap<String, Drink> drinks;
 	
 	@TargetApi(11)
 	@Override
@@ -49,7 +49,7 @@ public class ConfirmationFragmentActivity extends Fragment {
 		setRetainInstance(true);
 		handler = new Handler();
 		drinks = ((SocialCafeApplication)getActivity().getApplication()).drinks;
-		index = getActivity().getIntent().getIntExtra("DRINK_INDEX", -1);
+		url = getActivity().getIntent().getStringExtra("DRINK_URL");
 		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -61,18 +61,20 @@ public class ConfirmationFragmentActivity extends Fragment {
 		View v = inflater.inflate(R.layout.order_confirmation, parent, false);
 		getActivity().setTitle(R.string.confirmation);
 		
+		Drink drink = drinks.get(url);
+		
 		TextView drinkTitle = (TextView)v.findViewById(R.id.drink_confirmation_title);
-		drinkTitle.setText(drinks.get(index).getTitle());
+		drinkTitle.setText(drink.getTitle());
 
 		TextView drinkInfo = (TextView)v.findViewById(R.id.drink_confirmation_info);
-		drinkInfo.setText(drinks.get(index).getInfo());
+		drinkInfo.setText(drink.getInfo());
 		
 		ImageView drinkImage = (ImageView)v.findViewById(R.id.drink_confirmation_image);
-		drinkImage.setImageResource(drinks.get(index).getImageID());
+		drinkImage.setImageResource(drink.getImageID());
 		
 		TextView ogStory = (TextView)v.findViewById(R.id.og_message);
 		ogStory.setText(getString(R.string.og_message, 
-				((SocialCafeApplication)getActivity().getApplication()).userName, drinks.get(index).getTitle()));
+				((SocialCafeApplication)getActivity().getApplication()).userName, drink.getTitle()));
 		
 		ImageButton enjoyButton = (ImageButton)v.findViewById(R.id.enjoy_button);
 		enjoyButton.setOnClickListener(new View.OnClickListener() {
@@ -80,7 +82,7 @@ public class ConfirmationFragmentActivity extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Bundle params = new Bundle();
-		   		params.putString("object", drinks.get(index).getURL());
+		   		params.putString("object", drinks.get(url).getURL());
 				((SocialCafeApplication)getActivity().getApplication()).asyncRunner.request("me/og.likes", params, 
 						"POST", new EnjoyedDrinkPostListener(), ENJOY_STATE);
 				
@@ -118,7 +120,7 @@ public class ConfirmationFragmentActivity extends Fragment {
         	handler.post(new Runnable() {
                 public void run() {
                 	new AlertDialog.Builder(getActivity())
-        	        .setMessage(getString(R.string.drink_enjoyed, drinks.get(index).getTitle()))
+        	        .setMessage(getString(R.string.drink_enjoyed, drinks.get(url).getTitle()))
         	        .setPositiveButton(R.string.ok, null)
         	        .show();
                 }
